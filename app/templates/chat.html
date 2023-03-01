@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Chat-Analysis{% endblock %}
+
+{% block content %}
+    <h3>Chat Log</h3>
+    <div id="chatlog-content">
+        {% if chat_log %}
+        <p>{{chat_log}}</p>
+        {% endif %}
+        <br>
+    </div>
+    <br><br>
+    <!--Typing field form-->
+    <footer id="footer" style="width:100%">
+        <form action="{{ url_for('chat') }}" method="POST">
+            <label>Enter message:</label>
+            <input type="text" name="chat-message" id="chat-message" style="width:50%">
+            <input type="submit" name="next" value="Next">
+        </form>
+    </footer>
+{% endblock %}
