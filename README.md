@@ -6,15 +6,15 @@ Create a Web App that creates user accounts, uses ChatGPT API to talk to a chat 
 ### Setup:
 Enter commands in terminal to create Pipenv virtual environment:<br />
 ```
-python3 -m pipenv install<br />
-python3 -m pipenv shell<br />
-conda deactivate (*if you also have Conda active)<br />
-SET FLASK_APP='chat_analysis.py'<br />
-flask run<br />
+python3 -m pipenv install
+python3 -m pipenv shell
+conda deactivate (*if you also have Conda active)
+SET FLASK_APP='chat_analysis.py'
+flask run
 ```
 To exit Pipenv virtual environment:<br />
 ```
-exit<br />
+exit
 ```
 ### Packages:
 openai
