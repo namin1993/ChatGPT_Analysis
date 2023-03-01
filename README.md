@@ -4,16 +4,18 @@
 Create a Web App that creates user accounts, uses ChatGPT API to talk to a chat bot, and allows the user to export any chatlog message.
 
 ### Setup:
-Enter commands in terminal to create Pipenv virtual environment:
+Enter commands in terminal to create Pipenv virtual environment:<br />
+```
 python3 -m pipenv install<br />
 python3 -m pipenv shell<br />
 conda deactivate (*if you also have Conda active)<br />
 SET FLASK_APP='chat_analysis.py'<br />
 flask run<br />
-
+```
 To exit Pipenv virtual environment:<br />
+```
 exit<br />
-
+```
 ### Packages:
 openai
 
