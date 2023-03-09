@@ -73,4 +73,4 @@ SA_Instance Error: https://stackoverflow.com/questions/16151729/attributeerror-i
 
 ### Website:
 
-
+View application here: https://flask-chatgpt-v01.herokuapp.com/
