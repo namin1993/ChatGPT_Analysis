@@ -10,7 +10,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
 
-    #add relationship in Messages model correct if needed
+    #add relationship in Messages model
     messages = db.relationship('Message', backref='messenger', lazy='dynamic')
 
     def set_password(self, password):
@@ -33,9 +33,6 @@ class Message(db.Model):
     bot_answer = db.Column(db.String(1500))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    # Relationship
-    #user_id_relation = db.relationship("User")
 
     def __repr__(self):
         return 'Chat Session {}\nQuestion: {}\nAnswer: {}\nTimestamp: {}\n\n'.format(self.chat_session_id, self.question, self.bot_answer, self.timestamp)
