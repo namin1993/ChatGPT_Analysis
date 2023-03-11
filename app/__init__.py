@@ -10,12 +10,9 @@ import os
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Migration directory
-MIGRATION_DIR = os.path.join('app', 'migrations')
-
 # SQLAlchemy Engine
 db = SQLAlchemy(app)
-migrate = Migrate(app, db, directory=MIGRATION_DIR)
+migrate = Migrate(app, db)
 
 DB_URI = app.config['SQLALCHEMY_DATABASE_URI']
 engine = create_engine(DB_URI)
