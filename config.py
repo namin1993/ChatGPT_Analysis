@@ -8,7 +8,8 @@ load_dotenv(os.path.join(basedir, '.env'))
 class Config(object):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SECRET_KEY = os.urandom(12).hex()
+    #SECRET_KEY = os.urandom(12).hex()
+    SECRET_KEY = 'some-secret-key-1234'
     uri = os.getenv("DATABASE_URL")  # or other relevant config var
     if uri.startswith("postgres://"):
         uri = uri.replace("postgres://", "postgresql://", 1)

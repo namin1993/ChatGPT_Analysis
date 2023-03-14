@@ -61,7 +61,7 @@ def login():
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('login'))
-        login_user(user)
+        login_user(user, remember=True)
 
         # Check if 'next' argument is in URL
         next_page = request.args.get('next')
