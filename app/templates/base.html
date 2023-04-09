@@ -69,10 +69,12 @@
                     <hr>
                     <!-- User Account -->
                     <!-- Check if Loggedin, esle display different html-->
-                    <div class="dropdown pb-4">
+                    <div id="dropdown-menu" class="dropdown pb-4">
                         {% if current_user.is_anonymous %}
-                            <li><a href="{{ url_for('register') }}">Register New Account</a></li>
-                            <li><a href="{{ url_for('login') }}">Login</a></li>
+                            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                                <li><a href="{{ url_for('register') }}">Register New Account</a></li>
+                                <li><a href="{{ url_for('login') }}">Login</a></li>
+                            </ul>
                         {% else %}
                             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="https://www.nicepng.com/png/detail/122-1227070_pink-star-clip-art-star-pink-2-png.png" alt="profilepic" width="30" height="30" class="rounded-circle">
