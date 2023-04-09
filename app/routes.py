@@ -184,34 +184,37 @@ def about():
 # Export CSV file of Chat Log
 @app.route('/export/<session_number>')
 def export(session_number):
-    flash('You have exported your Chat Log History for this session')
     #yag = yagmail.SMTP(user="namin.general@gmail.com")
-    yag = yagmail.SMTP("namin.general@gmail.com")
+    try:
+        yag = yagmail.SMTP("namin.general@gmail.com")
 
-    # Create filename
-    filename = f'Chat_History-{session_number}_{str(dt.now())}.csv'
-    headers = [column.key for column in Message.__table__.columns]
-    chat_log_history = Message.query.filter_by(chat_session_id = session_number).all()
-    
-    '''
-    wtr = csv.writer(open (filename, 'w'), delimiter=',', lineterminator='\n')
-    wtr.writerow (str(headers))
-    print(chat_log_history[0])
-    for chat_message in chat_log_history:
-        wtr.writerows(str(chat_message).split('\n'))
-    '''
-    
-    with open(filename, 'a') as txt_file:
-        #txt_file.write(str(headers))
-        txt_file.write(f'\n')
+        # Create filename
+        filename = f'Chat_History-{session_number}_{str(dt.now())}.csv'
+        headers = [column.key for column in Message.__table__.columns]
+        chat_log_history = Message.query.filter_by(chat_session_id = session_number).all()
+        
+        '''
+        wtr = csv.writer(open (filename, 'w'), delimiter=',', lineterminator='\n')
+        wtr.writerow (str(headers))
+        print(chat_log_history[0])
         for chat_message in chat_log_history:
-            #print(chat_message)
-            txt_file.write(str(chat_message))
-    
-    # Send email of chatlog
-    email = current_user.email
-    yag.send(to=email, subject='Chatlog Export', attachments=filename)
-    
+            wtr.writerows(str(chat_message).split('\n'))
+        '''
+        
+        with open(filename, 'a') as txt_file:
+            #txt_file.write(str(headers))
+            txt_file.write(f'\n')
+            for chat_message in chat_log_history:
+                #print(chat_message)
+                txt_file.write(str(chat_message))
+        
+        # Send email of chatlog
+        email = current_user.email
+        yag.send(to=email, subject='Chatlog Export', attachments=filename)
+        flash('You have exported your Chat Log History for this session. Please check your email inbox.')
+    except:
+        flash('Error, email was not sent')
+
     return redirect(url_for('chat_session', session_number=session_number))
 
 
