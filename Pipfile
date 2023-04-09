@@ -74,6 +74,7 @@ flask-wtf = "*"
 email-validator = "*"
 yagmail = "*"
 keyring = "*"
+"keyrings.alt" = "*"
 
 [dev-packages]
 
