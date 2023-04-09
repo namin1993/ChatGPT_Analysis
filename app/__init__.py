@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 import yagmail
 import keyring
+import keyrings.alt
 import os
 
 # Initialization
@@ -23,6 +24,7 @@ engine = create_engine(DB_URI)
 EMAIL_ACCOUNT = app.config['EMAIL_ACCOUNT']
 EMAIL_API_KEY = app.config['EMAIL_API_KEY']
 keyring.set_password("yagmail", str(EMAIL_ACCOUNT), str(EMAIL_API_KEY))
+keyring.get_password(str(EMAIL_ACCOUNT))
 
 # Flask-login
 login = LoginManager(app)
