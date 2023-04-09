@@ -69,9 +69,9 @@
                     <hr>
                     <!-- User Account -->
                     <!-- Check if Loggedin, esle display different html-->
-                    <div id="dropdown-menu" class="dropdown pb-4">
+                    <div class="dropdown pb-4">
                         {% if current_user.is_anonymous %}
-                            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                            <ul id="dropdown-menu-register-login">
                                 <li><a href="{{ url_for('register') }}">Register New Account</a></li>
                                 <li><a href="{{ url_for('login') }}">Login</a></li>
                             </ul>
