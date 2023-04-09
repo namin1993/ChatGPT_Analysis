@@ -89,7 +89,7 @@ def chat():
 
     if current_user.is_authenticated:
         chat_url_links = []
-        for link in Message.query.distinct(Message.chat_session_id).filter_by(Message.user_id == current_user.get_id()):
+        for link in Message.query.distinct(Message.chat_session_id).filter((Message.user_id == current_user.get_id())):
             chat_url_links.append(link.chat_session_id)
 
     # Instantiate new Chat
@@ -125,7 +125,7 @@ def chat_session(session_number):
 
     if current_user.is_authenticated:
         chat_url_links = []
-        for link in Message.query.distinct(Message.chat_session_id).filter_by(Message.user_id == current_user.get_id()):
+        for link in Message.query.distinct(Message.chat_session_id).filter(Message.user_id == current_user.get_id()):
             chat_url_links.append(link.chat_session_id)
 
     # Instantiate new Chat
@@ -174,7 +174,7 @@ def chat_session(session_number):
 def about():
     chat_url_links = []
     if current_user.is_authenticated:
-        for link in Message.query.distinct(Message.chat_session_id).filter_by(Message.user_id == current_user.get_id()):
+        for link in Message.query.distinct(Message.chat_session_id).filter(Message.user_id == current_user.get_id()):
             chat_url_links.append(link.chat_session_id)
         return render_template("about.html", chat_url_links=chat_url_links)
     else:
