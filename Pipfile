@@ -72,6 +72,8 @@ flask-migrate = "*"
 flask-login = "*"
 flask-wtf = "*"
 email-validator = "*"
+yagmail = "*"
+keyring = "*"
 
 [dev-packages]
 
