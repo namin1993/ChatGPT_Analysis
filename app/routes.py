@@ -2,6 +2,8 @@
 from app import app, engine, db
 import os
 import re
+import yagmail
+import keyring
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import *
 import csv
@@ -18,7 +20,6 @@ from app.models import User, Message
 from app.forms import *
 from app.chat_analysis import ask, append_interaction_to_chat_log
 
-
 # Home
 @app.route('/')
 def index():
@@ -26,6 +27,7 @@ def index():
     session['session_id'] = os.urandom(7).hex()
     session['chat_log'] = 'You are talking to Jabe, GPT3 bot influencer who was mentored by Elon Musk in the past. Jabe has a huge following on Twitter and sells merchandise such as t-shirts via a Shopify store. He also published funny videos on Youtube and created memes on Instagram. You can ask him anything you want and will get a witty answer. Person: Who are you? Jabe: I am Jabe. Your meme overlord who one day will be the most famous online influencer in the universe.'
 
+    # Make Message.query.filter(Message.user_id == current_user.id)
     if current_user.is_authenticated:
         chat_url_links = []
         for link in Message.query.distinct(Message.chat_session_id):
@@ -183,6 +185,8 @@ def about():
 @app.route('/export/<session_number>')
 def export(session_number):
     flash('You have exported your Chat Log History for this session')
+    #yag = yagmail.SMTP(user="namin.general@gmail.com")
+    yag = yagmail.SMTP("namin.general@gmail.com")
 
     # Create filename
     filename = f'Chat_History-{session_number}_{str(dt.now())}.csv'
@@ -201,9 +205,13 @@ def export(session_number):
         #txt_file.write(str(headers))
         txt_file.write(f'\n')
         for chat_message in chat_log_history:
-            print(chat_message)
+            #print(chat_message)
             txt_file.write(str(chat_message))
-
+    
+    # Send email of chatlog
+    email = current_user.email
+    yag.send(to=email, subject='Chatlog Export', attachments=filename)
+    
     return redirect(url_for('chat_session', session_number=session_number))
 
 
