@@ -21,7 +21,7 @@ engine = create_engine(DB_URI)
 
 # Setup email
 EMAIL_ACCOUNT = app.config['EMAIL_ACCOUNT']
-EMAIL_API_KEY = app.config['EMAIL_API']
+EMAIL_API_KEY = app.config['EMAIL_PASSWORD']
 keyring.set_password("yagmail", EMAIL_ACCOUNT, EMAIL_API_KEY)
 
 # Flask-login
