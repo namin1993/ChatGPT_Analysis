@@ -30,7 +30,7 @@ def index():
     # Make Message.query.filter(Message.user_id == current_user.id)
     if current_user.is_authenticated:
         chat_url_links = []
-        for link in Message.query.distinct(Message.chat_session_id):
+        for link in Message.query.distinct(Message.chat_session_id).filter((Message.user_id == current_user.get_id())):
             chat_url_links.append(link.chat_session_id)
         return render_template("index.html", chat_url_links=chat_url_links)
     return render_template("index.html")
