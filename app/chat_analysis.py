@@ -4,8 +4,10 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from typing import Optional
 
+# Load environment variables from .env file
 load_dotenv()
 
+# Connect to OpenAI API
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY")
 )
@@ -15,6 +17,7 @@ OPENAI_MODEL = os.environ.get(
     "gpt-5.5",
 )
 
+# Instantiate Chat variables
 USER_LABEL = "You:"
 BOT_LABEL = "Jabe:"
 

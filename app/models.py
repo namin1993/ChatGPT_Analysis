@@ -29,8 +29,8 @@ def load_user(id):
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chat_session_id = db.Column(db.String(30))
-    question = db.Column(db.String(1500))
-    bot_answer = db.Column(db.String(1500))
+    question = db.Column(db.Text, nullable=False)
+    bot_answer = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
