@@ -1,37 +1,86 @@
 # Import Dependencies
-from dotenv import load_dotenv
 import os
-import openai
-import json
+from dotenv import load_dotenv
+from openai import OpenAI
+from typing import Optional
 
-
-# Import Global Variables
 load_dotenv()
-openai.api_key = os.environ.get("OPENAI_API_KEY")
-#completion = openai.Completion()
+#openai.api_key = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY")
+)
 
-# Ask Questions to Chat GPT
-start_sequence = f'\nJabe:'
-restart_sequence = f'\n\nPerson:'
-session_prompt = 'You are talking to Jabe, GPT3 bot influencer who was mentored by Elon Musk in the past. Jabe has a huge following on Twitter and sells merchandise such as t-shirts via a Shopify store. He also published funny videos on Youtube and created memes on Instagram. You can ask him anything you want and will get a witty answer.\n\nPerson: Who are you?\nJabe: I am Jabe. Your meme overlord who one day will be the most famous online influencer in the universe.'
+OPENAI_MODEL = os.environ.get(
+    "OPENAI_MODEL",
+    "gpt-5.5",
+)
 
-def ask(question, chat_log=None):
-    prompt_text = f'{chat_log}{restart_sequence}: {question}{start_sequence}:'
-    response = openai.Completion.create(
-            engine="davinci",
-            prompt=prompt_text,
-            temperature=0.8,
-            max_tokens=150,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0.3,
-            stop=["\n"],
+USER_LABEL = "You:"
+BOT_LABEL = "Jabe:"
+
+SYSTEM_INSTRUCTIONS = (
+    "You are Jabe, a fictional chatbot influencer. "
+    "Jabe has a humorous and entertaining personality, creates memes, "
+    "publishes online videos, and sells merchandise. "
+    "Stay in character as Jabe while remaining helpful and appropriate."
+)
+
+SESSION_PROMPT = (
+    "You are talking to Jabe, a GPT chatbot influencer."
+    "Jabe has a humorous and entertaining personality, creates memes, "
+    "publishes online videos, and sells merchandise. "
+    "Stay in character as Jabe while remaining helpful and appropriate."
+)
+
+
+def ask(question: str, chat_log: Optional[str] = None) -> str:
+    """
+    Send the current conversation to the OpenAI API and return the bot's answer.
+    """
+
+    if not question or not question.strip():
+        return "Please enter a message."
+
+    current_log = chat_log or SESSION_PROMPT
+
+    prompt_text = (
+        f"{current_log.rstrip()}\n\n"
+        f"{USER_LABEL} {question.strip()}\n"
+        f"{BOT_LABEL}"
+    )
+
+    try:
+        response = client.responses.create(
+                model=OPENAI_MODEL,
+                instructions=SYSTEM_INSTRUCTIONS,
+                input=prompt_text,
         )
-    story = response['choices'][0]['text']
-    return str(story)
 
-# Helpchat bot remember previous chat log responses
-def append_interaction_to_chat_log(question, answer, chat_log=None):
-    if chat_log is None: 
-        chat_log = session_prompt 
-    return f'{chat_log}{restart_sequence} {question}{start_sequence}{answer}'
+        answer = response.output_text.strip()
+        
+        if not answer:
+            return "I could not generate a response. Please try again."
+
+        return answer
+    
+    except Exception as error:
+        print(f"OpenAI API error: {error}")
+        return "The chatbot is temporarily unavailable. Please try again."
+
+
+def append_interaction_to_chat_log(
+    question: str,
+    answer: str,
+    chat_log: Optional[str] = None,
+) -> str:
+    """
+    Add one user-and-bot exchange with consistent blank-line spacing.
+    """
+
+    current_log = chat_log or SESSION_PROMPT
+
+    return (
+        f"{current_log.rstrip()}\n\n"
+        f"{USER_LABEL} {question.strip()}\n\n"
+        f"{BOT_LABEL} {answer.strip()}"
+    )

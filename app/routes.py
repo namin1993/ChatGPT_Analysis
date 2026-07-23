@@ -4,28 +4,31 @@ import os
 import re
 import yagmail
 import keyring
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy import *
+import psycopg2
+import flask_migrate
 import csv
 from datetime import datetime as dt
+
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy import *
+from sqlalchemy.orm import Session
+
 from flask import Flask, request, session, render_template, url_for, redirect, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.urls import url_parse
-from sqlalchemy.orm import Session
 from flask_cors import CORS, cross_origin
-import psycopg2
-import flask_migrate
 from flask_login import current_user, login_user, logout_user, login_required
+
 from app.models import User, Message
 from app.forms import *
-from app.chat_analysis import ask, append_interaction_to_chat_log
+from app.chat_analysis import SESSION_PROMPT, ask, append_interaction_to_chat_log
 
 # Home
 @app.route('/')
 def index():
     # Instantiate new session variables for Chat log (Figure out how to refresh this)
     session['session_id'] = os.urandom(7).hex()
-    session['chat_log'] = 'You are talking to Jabe, GPT3 bot influencer who was mentored by Elon Musk in the past. Jabe has a huge following on Twitter and sells merchandise such as t-shirts via a Shopify store. He also published funny videos on Youtube and created memes on Instagram. You can ask him anything you want and will get a witty answer. Person: Who are you? Jabe: I am Jabe. Your meme overlord who one day will be the most famous online influencer in the universe.'
+    session['chat_log'] = SESSION_PROMPT
 
     # Make Message.query.filter(Message.user_id == current_user.id)
     if current_user.is_authenticated:
@@ -86,28 +89,33 @@ def logout():
 @app.route('/chat', methods=["GET", "POST"])
 @login_required
 def chat():
+    chat_url_links = []
 
+    # List all previous chat log history under the authenticated user
     if current_user.is_authenticated:
-        chat_url_links = []
         for link in Message.query.distinct(Message.chat_session_id).filter((Message.user_id == current_user.get_id())):
             chat_url_links.append(link.chat_session_id)
 
     # Instantiate new Chat
-    chat_log = session.get('chat_log')
-    session_id = session['session_id']
+    chat_log = session.get('chat_log', SESSION_PROMPT)
+    session_id = session.get("session_id")
     
+    # Create unique session id if None was created at /index route
+    if session_id is None:
+        session_id = os.urandom(7).hex()
+        session["session_id"] = session_id
+    
+    # If user enters a message in chat bot
     if request.method == "POST":
-        incoming_msg = request.form.get('chat-message')
-        #session['chat_log'] = request.get('chat_log')
-        chat_log = session.get('chat_log')
+        incoming_msg = request.form.get('chat-message', '').strip()
         answer = ask(incoming_msg, chat_log)
 
         # Update Chat Log with new messages
-        session['chat_log'] = append_interaction_to_chat_log(incoming_msg, answer, chat_log)
-        chat_log = session['chat_log']
+        chat_log = append_interaction_to_chat_log(incoming_msg, answer, chat_log)
+        session['chat_log'] = chat_log
 
         # Insert Incoming messages and generated answer into Messages table
-        chat_msg = Message(chat_session_id=session_id, question=incoming_msg, bot_answer=answer, messenger = current_user) #Pass User.Username in messages table connected to the user
+        chat_msg = Message(chat_session_id=session_id, question=incoming_msg, bot_answer=answer, messenger=current_user) #Pass User.Username in messages table connected to the user
         db.session.add(chat_msg)
         db.session.commit()
         flash('Congratulations, a new message has been entered!')
@@ -122,50 +130,64 @@ def chat():
 @app.route('/chat/<session_number>', methods=["GET", "POST"])
 @login_required
 def chat_session(session_number):
+    chat_url_links = []
 
+    # List all previous chat log history under the authenticated user
     if current_user.is_authenticated:
-        chat_url_links = []
         for link in Message.query.distinct(Message.chat_session_id).filter(Message.user_id == current_user.get_id()):
             chat_url_links.append(link.chat_session_id)
 
-    # Instantiate new Chat
-    global chat_log_history_record
-    session['chat_log_history_record'] = 'You are talking to Jabe, GPT3 bot influencer who was mentored by Elon Musk in the past. Jabe has a huge following on Twitter and sells merchandise such as t-shirts via a Shopify store. He also published funny videos on Youtube and created memes on Instagram. You can ask him anything you want and will get a witty answer. Person: Who are you? Jabe: I am Jabe. Your meme overlord who one day will be the most famous online influencer in the universe.' 
-    chat_log_history_record = session.get('chat_log_history_record')
+    # Recreate chat log history
+    chat_data = (
+            Message.query
+            .filter_by(
+                chat_session_id=session_number,
+                user_id=current_user.id,
+            )
+            .order_by(Message.timestamp.asc())
+            .all()
+        )
 
-    # Need to check if chat_log is filled in redirect. If not, I don't have to repeat chat_log again
-    if chat_log_history_record == 'You are talking to Jabe, GPT3 bot influencer who was mentored by Elon Musk in the past. Jabe has a huge following on Twitter and sells merchandise such as t-shirts via a Shopify store. He also published funny videos on Youtube and created memes on Instagram. You can ask him anything you want and will get a witty answer. Person: Who are you? Jabe: I am Jabe. Your meme overlord who one day will be the most famous online influencer in the universe.':
-        chat_data = Message.query.filter_by(chat_session_id = session_number).all()   
-        # Recreate chat log history
-        question_list = []
-        answer_list = []
-        for element in chat_data:
-            z = re.search(r"(?<=Question:\s)([\d\w\s\S\.\!\?\$]*)(?=\nAnswer:)", str(element)).group()
-            x = re.search(r"(?<=\nAnswer:\s)(\s.*)", str(element)).group()
-            question_list.append(z)
-            answer_list.append(x)
+    history_parts = [SESSION_PROMPT]
 
-        for i in range(len(question_list)):
-            question_txt = question_list[i]
-            answer_txt = answer_list[i]
-            chat_log_history_record = f'{chat_log_history_record}\n\n You: {question_txt}\n\n Jabe:{answer_txt}'
-        session['chat_log_history_record'] = chat_log_history_record
+    for message in chat_data:
+        history_parts.append(
+            f"You: {message.question.strip()}\n\n"
+            f"Jabe: {message.bot_answer.strip()}"
+        )
+
+    chat_log_history_record = "\n\n".join(history_parts)
+
 
     if request.method == "POST":
-        incoming_msg = request.form.get('chat-message')
-        chat_log_history_record = session.get('chat_log_history_record')
+        incoming_msg = request.form.get("chat-message", "").strip()
+        
+        if not incoming_msg:
+            flash("Please enter a message.")
+            return render_template(
+                "chat-session.html",
+                chat_log_history_record=chat_log_history_record,
+                session_number=session_number,
+                chat_url_links=chat_url_links,
+            )
+
         answer = ask(incoming_msg, chat_log_history_record)
 
-        # Update Chat Log with new messages
-        session['chat_log_history_record'] = append_interaction_to_chat_log(incoming_msg, answer, chat_log_history_record)
-        chat_log_history_record = session['chat_log_history_record']
+        chat_msg = Message(
+            chat_session_id=session_number,
+            question=incoming_msg,
+            bot_answer=answer,
+            messenger=current_user,
+        )
 
-        # Insert Incoming messages and generated answer into Messages table
-        chat_msg = Message(chat_session_id=session_number, question=incoming_msg, bot_answer=answer, messenger = current_user) #Pass User.Username in messages table connected to the user
         db.session.add(chat_msg)
         db.session.commit()
-        flash('Congratulations, a new message has been entered!')
-        return render_template("chat-session.html", chat_log_history_record=chat_log_history_record, session_number=session_number, chat_url_links=chat_url_links)
+
+        chat_log_history_record = append_interaction_to_chat_log(
+            question=incoming_msg,
+            answer=answer,
+            chat_log=chat_log_history_record,
+        )
     return render_template("chat-session.html", chat_log_history_record=chat_log_history_record, session_number=session_number, chat_url_links=chat_url_links)
 
 
@@ -184,7 +206,6 @@ def about():
 # Export CSV file of Chat Log
 @app.route('/export/<session_number>')
 def export(session_number):
-    #yag = yagmail.SMTP(user="namin.general@gmail.com")
     try:
         yag = yagmail.SMTP("namin.general@gmail.com")
 
