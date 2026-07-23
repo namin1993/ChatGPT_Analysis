@@ -1,21 +1,52 @@
 {% extends "base.html" %}
-{% block title %}Chat-Analysis{% endblock %}
+
+{% block title %}Chat History | Chat Analysis{% endblock %}
 
 {% block content %}
-    <h3>Chat Log</h3>
-    <div id="chatlog-content">
-        {% if chat_log_history_record %}
-        <p>{{chat_log_history_record}}</p>
-        {% endif %}
-        <br>
+<div class="chat-page">
+    <div class="page-header">
+        <h1>Chat History</h1>
+        <p>Continue this saved conversation.</p>
     </div>
-    <br><br>
-    <!--Typing field form-->
-    <footer id="footer" style="width:100%">
-        <form action="{{ url_for('chat_session', session_number = session_number) }}" method="POST">
-            <label>Enter message:</label>
-            <input type="text" name="chat-message" id="chat-message" style="width:50%">
-            <input type="submit" name="next" value="Next">
+
+    <div class="chat-card">
+        <div id="chatlog-content" class="chat-log">
+            {% if chat_log_history_record %}
+                {{ chat_log_history_record }}
+            {% else %}
+                <span class="text-muted">
+                    No messages were found for this session.
+                </span>
+            {% endif %}
+        </div>
+
+        <form
+            action="{{ url_for(
+                'chat_session',
+                session_number=session_number
+            ) }}"
+            method="POST"
+            class="chat-form"
+        >
+            <label for="chat-message" class="form-label">
+                Enter message
+            </label>
+
+            <div class="chat-input-row">
+                <textarea
+                    name="chat-message"
+                    id="chat-message"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Type your message..."
+                    required
+                ></textarea>
+
+                <button type="submit" class="btn btn-primary">
+                    Send
+                </button>
+            </div>
         </form>
-    </footer>
+    </div>
+</div>
 {% endblock %}

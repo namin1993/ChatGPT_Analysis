@@ -1,26 +1,55 @@
 {% extends "base.html" %}
 
-{% block title %}Chat-Analysis Login Page{% endblock %}
+{% block title %}Login | Chat Analysis{% endblock %}
 
 {% block content %}
-    <h3>Chat Log - Login</h3>
+<div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h3 mb-4">Login</h1>
 
-    <form action="{{ url_for('login') }}" method="POST" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}
-            {{ form.username(size=32) }}<br>
-            {% for error in form.username.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.password.label }}
-            {{ form.password(size=32) }}<br>
-            {% for error in form.password.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+                <form
+                    action="{{ url_for('login') }}"
+                    method="POST"
+                    novalidate
+                >
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label") }}
+
+                        {{ form.username(
+                            class="form-control",
+                            autocomplete="username"
+                        ) }}
+
+                        {% for error in form.username.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+
+                        {{ form.password(
+                            class="form-control",
+                            autocomplete="current-password"
+                        ) }}
+
+                        {% for error in form.password.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

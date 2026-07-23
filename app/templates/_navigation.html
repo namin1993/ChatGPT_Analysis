@@ -1,0 +1,103 @@
+<nav>
+    <ul class="nav nav-pills flex-column gap-1">
+        <li class="nav-item">
+            <a
+                href="{{ url_for('index') }}"
+                class="nav-link text-white"
+            >
+                <i class="bi bi-house me-2"></i>
+                Home
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a
+                href="{{ url_for('chat') }}"
+                class="nav-link text-white"
+            >
+                <i class="bi bi-chat-dots me-2"></i>
+                New Chat
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a
+                href="{{ url_for('about') }}"
+                class="nav-link text-white"
+            >
+                <i class="bi bi-book me-2"></i>
+                About
+            </a>
+        </li>
+
+        {% if current_user.is_authenticated %}
+            {% if chat_url_links %}
+                <li class="mt-3">
+                    <div class="px-3 mb-2 text-secondary small text-uppercase">
+                        Chat history
+                    </div>
+                </li>
+
+                {% for url_link in chat_url_links %}
+                    <li class="nav-item">
+                        <a
+                            href="{{ url_for(
+                                'chat_session',
+                                session_number=url_link
+                            ) }}"
+                            class="nav-link text-white"
+                        >
+                            <i class="bi bi-clock-history me-2"></i>
+                            Chat {{ loop.index }}
+                        </a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+
+            {% if session_number is defined and session_number %}
+                <li class="nav-item mt-3">
+                    <a
+                        href="{{ url_for(
+                            'export',
+                            session_number=session_number
+                        ) }}"
+                        class="nav-link text-white"
+                    >
+                        <i class="bi bi-download me-2"></i>
+                        Export current chat
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="nav-item mt-3">
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="nav-link text-white"
+                >
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Logout
+                </a>
+            </li>
+        {% else %}
+            <li class="nav-item mt-3">
+                <a
+                    href="{{ url_for('register') }}"
+                    class="nav-link text-white"
+                >
+                    <i class="bi bi-person-plus me-2"></i>
+                    Register
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a
+                    href="{{ url_for('login') }}"
+                    class="nav-link text-white"
+                >
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Login
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>

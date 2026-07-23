@@ -1,3 +1,144 @@
+\* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    overflow-x: hidden;
+    background-color: #f7f8fa;
+}
+
 #dropdown-menu-register-login {
+    margin: 0;
+    padding: 0;
     list-style-type: none;
+}
+
+#content-area {
+    min-width: 0;
+    background-color: #f7f8fa;
+}
+
+.page-header {
+    margin-bottom: 1rem;
+}
+
+.page-header h1 {
+    margin-bottom: 0.35rem;
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.page-header p {
+    margin-bottom: 0;
+    color: #6c757d;
+}
+
+.chat-page {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.chat-card {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 150px);
+    overflow: hidden;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 8%);
+}
+
+.chat-log {
+    flex: 1;
+    min-height: 300px;
+    max-height: calc(100vh - 310px);
+    padding: 1.25rem;
+    overflow-y: auto;
+
+    /* Preserve \n characters from Python */
+    white-space: pre-wrap;
+
+    /* Prevent long text and URLs from overflowing */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    line-height: 1.65;
+}
+
+.chat-form {
+    padding: 1rem;
+    background-color: #ffffff;
+    border-top: 1px solid #dee2e6;
+}
+
+.chat-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+}
+
+.chat-input-row textarea {
+    min-height: 52px;
+    max-height: 180px;
+    resize: vertical;
+}
+
+.chat-input-row .btn {
+    min-height: 52px;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+/* Tablets and phones */
+@media (max-width: 767.98px) {
+    #content-area {
+        width: 100%;
+        padding: 1rem !important;
+    }
+
+    .chat-card {
+        min-height: calc(100vh - 130px);
+        border-radius: 0.5rem;
+    }
+
+    .chat-log {
+        min-height: 250px;
+        max-height: calc(100vh - 330px);
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .chat-input-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .chat-input-row .btn {
+        width: 100%;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 420px) {
+    #content-area {
+        padding: 0.75rem !important;
+    }
+
+    .chat-log {
+        padding: 0.85rem;
+        font-size: 0.9rem;
+    }
+
+    .chat-form {
+        padding: 0.75rem;
+    }
 }
