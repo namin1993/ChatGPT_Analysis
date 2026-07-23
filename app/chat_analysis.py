@@ -5,7 +5,7 @@ from openai import OpenAI
 from typing import Optional
 
 load_dotenv()
-#openai.api_key = os.environ.get("OPENAI_API_KEY")
+
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY")
 )
